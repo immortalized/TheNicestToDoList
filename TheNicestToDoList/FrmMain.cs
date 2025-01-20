@@ -9,6 +9,30 @@ namespace TheNicestToDoList
         BindingList<TaskItem> tasks = new BindingList<TaskItem>();
         private ContextMenuStrip cmsTray;
 
+        private List<string> allMessages = new List<string>
+        {
+            "Tick-tock! Your laziness is showing. Do your task!",
+            "Hurry up! That task isn’t going to do itself, you know!",
+            "Stop procrastinating and get to work! Time’s running out!",
+            "Are you seriously waiting until the last second? Do it now!",
+            "You’re running out of time, you slacker! Get moving!",
+            "I’m not joking! Your task is almost due! Get to it!",
+            "Don’t make me remind you again! You’ve got a task to finish!",
+            "You have one job. Don’t blow it now!",
+            "C’mon! Stop being so lazy, your task is almost due!",
+            "Waking up to this? Yep, your task is almost overdue. Do something about it!",
+            "Seriously? You still haven’t done that task? Get a move on!",
+            "You're on thin ice! Get your act together or regret it!",
+            "You’re running out of time! What are you waiting for?",
+            "Hurry up! Your task is about to slap you in the face!",
+            "Stop being lazy! Your task is about to explode into your face!",
+            "The clock’s ticking, and you’re just sitting there. Do something!",
+            "Task due in less than 24 hours. Can we hurry up already?",
+            "Tick-tock! You’re wasting precious time, don’t blow it!",
+            "If you don’t start now, I’m going to keep bugging you until you do!",
+            "You better not ignore this. The task is coming for you!"
+        };
+
         // Level related stuff
         private int currentLevel = 1;
         private int currentXP = 0;
@@ -210,8 +234,8 @@ namespace TheNicestToDoList
             var upcomingTasks = tasks.Where(task => task.dueTime >= DateTime.Now && task.dueTime <= DateTime.Now.AddHours(24)).ToList();
             if (upcomingTasks.Any())
             {
-                var task = upcomingTasks.OrderBy(t => t.dueTime).First(); // Get the soonest task
-                ShowNotification("Upcoming Task", $"You have an upcoming task: {task.title} due in less than 24 hours.");
+                var randomMessage = allMessages[new Random().Next(allMessages.Count)];
+                ShowNotification("Upcoming Task", randomMessage);
             }
         }
 
@@ -220,8 +244,8 @@ namespace TheNicestToDoList
             var upcomingTasks = tasks.Where(task => task.dueTime >= DateTime.Now && task.dueTime <= DateTime.Now.AddHours(24)).ToList();
             if (upcomingTasks.Any())
             {
-                var task = upcomingTasks.OrderBy(t => t.dueTime).First(); // Get the soonest task
-                MessageBox.Show($"Reminder: You have a task due in less than 24 hours: {task.title}", "Task Reminder", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                var randomMessage = allMessages[new Random().Next(allMessages.Count)];
+                MessageBox.Show(randomMessage, "Task Reminder", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
