@@ -6,10 +6,11 @@ namespace TheNicestToDoList
 {
     public partial class FrmMain : Form
     {
+        private static Random rnd = new Random();
         BindingList<TaskItem> tasks = new BindingList<TaskItem>();
         private ContextMenuStrip cmsTray;
 
-        private List<string> allMessages = new List<string>
+        private List<string> messages = new List<string>
         {
             "Tick-tock! Your laziness is showing. Do your task!",
             "Hurry up! That task isn’t going to do itself, you know!",
@@ -33,6 +34,30 @@ namespace TheNicestToDoList
             "You better not ignore this. The task is coming for you!"
         };
 
+        private List<string> angryMessages = new List<string>
+        {
+            "Why aren't you working yet? Get off your butt and do it!",
+            "I can't believe you're still procrastinating! Just do it already!",
+            "Seriously? You’re wasting time when you should be working!",
+            "You’re making me angry by not finishing your tasks!",
+            "Are you really just sitting there? You have work to do!",
+            "You think this is a game? Get to work before I lose it!",
+            "Enough is enough! You need to focus and finish that task!",
+            "Stop being lazy, your task won't complete itself!",
+            "I can't keep waiting for you to get moving! Hurry up!",
+            "The clock’s ticking, and you're still doing nothing! Get moving!",
+            "Every second you waste is making me angrier! Get to work!",
+            "I’m done with excuses. You need to start working right now!",
+            "This procrastination has gone on long enough! Get back to work!",
+            "You’ve been warned! Get off your chair and get to work!",
+            "If I have to remind you one more time, you’ll regret it!",
+            "I’m losing my patience! You better finish that task!",
+            "You’re wasting time and I’m losing my mind! Get to work!",
+            "Don’t make me remind you again! You have tasks to do!",
+            "How many times do I have to tell you? Get your act together!",
+            "You're really pushing my patience here. Do the task!"
+        };
+
         // Level related stuff
         private int currentLevel = 1;
         private int currentXP = 0;
@@ -48,6 +73,7 @@ namespace TheNicestToDoList
         private Timer randomSoundTimer = new Timer();
         private Timer notificationTimer = new Timer();
         private Timer messageBoxTimer = new Timer();
+        private Timer dueTaskCheckTimer = new Timer();
 
         public FrmMain()
         {
@@ -82,6 +108,10 @@ namespace TheNicestToDoList
             messageBoxTimer.Interval = 300000;
             messageBoxTimer.Tick += MessageBoxTimerTick;
             messageBoxTimer.Start();
+
+            dueTaskCheckTimer.Interval = 5000;
+            dueTaskCheckTimer.Tick += DueTaskCheckTimerTick;
+            dueTaskCheckTimer.Start();
 
             // Event handlers
             this.Load += FrmMainLoad;
@@ -234,7 +264,7 @@ namespace TheNicestToDoList
             var upcomingTasks = tasks.Where(task => task.dueTime >= DateTime.Now && task.dueTime <= DateTime.Now.AddHours(24)).ToList();
             if (upcomingTasks.Any())
             {
-                var randomMessage = allMessages[new Random().Next(allMessages.Count)];
+                var randomMessage = messages[rnd.Next(messages.Count)];
                 ShowNotification("Upcoming Task", randomMessage);
             }
         }
@@ -244,8 +274,26 @@ namespace TheNicestToDoList
             var upcomingTasks = tasks.Where(task => task.dueTime >= DateTime.Now && task.dueTime <= DateTime.Now.AddHours(24)).ToList();
             if (upcomingTasks.Any())
             {
-                var randomMessage = allMessages[new Random().Next(allMessages.Count)];
+                var randomMessage = messages[rnd.Next(messages.Count)];
                 MessageBox.Show(randomMessage, "Task Reminder", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        private void DueTaskCheckTimerTick(object sender, EventArgs e)
+        {
+            var overdueTasks = tasks.Where(task => task.dueTime < DateTime.Now).ToList();
+
+            foreach (var overdueTask in overdueTasks)
+            {
+                tasks.Remove(overdueTask);
+            }
+
+            if (overdueTasks.Any())
+            {
+                for (int i = 0; i < 5; i++)
+                {
+                    MessageBox.Show(angryMessages[rnd.Next(angryMessages.Count)], "Task Overdue!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 
