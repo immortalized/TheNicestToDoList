@@ -144,39 +144,34 @@ namespace TheNicestToDoList
         {
             var selectedTasks = lbxTasks.SelectedItems.Cast<TaskItem>().ToList();
 
-            if (selectedTasks.Any())
-            {
-                foreach (var task in selectedTasks)
-                {
-                    int xpAwarded = task.priority switch
-                    {
-                        Priority.Low => 10,
-                        Priority.Medium => 15,
-                        Priority.High => 25,
-                        _ => 0
-                    };
-
-                    excessXP += xpAwarded;
-
-                    while (excessXP >= xpNeeded)
-                    {
-                        excessXP -= xpNeeded;
-                        currentLevel++;
-                        xpNeeded = GetXPForNextLevel(currentLevel);
-                    }
-
-                    tasks.Remove(task);
-                }
-
-                currentXP = excessXP;
-
-                RefreshLevelControls();
-                ShowNotification("Task Completed!", "Congratulations! You've earned XP for completing a task.");
-            }
-            else
+            if (!selectedTasks.Any())
             {
                 MessageBox.Show("Please select a task to complete.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
             }
+
+            selectedTasks.ForEach(task =>
+            {
+                currentXP += task.priority switch
+                {
+                    Priority.Low => 10,
+                    Priority.Medium => 15,
+                    Priority.High => 25,
+                    _ => 0
+                };
+
+                tasks.Remove(task);
+            });
+
+            while (currentXP >= xpNeeded)
+            {
+                currentXP -= xpNeeded;
+                currentLevel++;
+                xpNeeded = GetXPForNextLevel(currentLevel);
+            }
+
+            RefreshLevelControls();
+            ShowNotification("Task Completed!", "Congratulations! You've earned XP for completing a task.");
 
             AdjustTimerIntervals();
         }
