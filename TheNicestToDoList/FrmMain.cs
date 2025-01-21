@@ -114,7 +114,7 @@ namespace TheNicestToDoList
             dueTaskCheckTimer.Start();
 
             // Event handlers
-            this.Load += FrmMainLoad;
+            //this.Load += FrmMainLoad;
             this.FormClosing += FrmMainFormClosing;
             ntfIcon.DoubleClick += OpenApplication;
             btnAddTask.Click += BtnAddTaskClick;
@@ -136,6 +136,8 @@ namespace TheNicestToDoList
             {
                 MessageBox.Show("Task with the same title and due time already exists.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+
+            AdjustTimerIntervals();
         }
 
         private void BtnCompleteTaskClick(object sender, EventArgs e)
@@ -175,6 +177,8 @@ namespace TheNicestToDoList
             {
                 MessageBox.Show("Please select a task to complete.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
+
+            AdjustTimerIntervals();
         }
 
         private void FrmMainFormClosing(object sender, FormClosingEventArgs e)
@@ -238,6 +242,33 @@ namespace TheNicestToDoList
             return (int)(BASE_XP * Math.Pow(GROWTH_RATE, currentLevel - 1));
         }
 
+        private TaskItem? GetMostUrgentTask()
+        {
+            return tasks
+                .Where(task => task.dueTime > DateTime.Now && task.dueTime <= DateTime.Now.AddHours(24))
+                .OrderBy(task => task.dueTime)
+                .FirstOrDefault();
+        }
+
+        private void AdjustTimerIntervals()
+        {
+            TaskItem? urgentTask = GetMostUrgentTask();
+            if (urgentTask == null)
+            {
+                randomSoundTimer.Interval = 30000;
+                notificationTimer.Interval = 120000;
+                messageBoxTimer.Interval = 300000;
+                return;
+            }
+
+            TimeSpan timeLeft = urgentTask.dueTime - DateTime.Now;
+            double factor = Math.Max(0.1, timeLeft.TotalHours / 24.0);
+
+            randomSoundTimer.Interval = (int)(30000 * factor);
+            notificationTimer.Interval = (int)(120000 * factor);
+            messageBoxTimer.Interval = (int)(300000 * factor);
+        }
+
         private void ShowNotification(string title, string message)
         {
             ntfIcon.BalloonTipTitle = title;
@@ -295,6 +326,8 @@ namespace TheNicestToDoList
                     MessageBox.Show(angryMessages[rnd.Next(angryMessages.Count)], "Task Overdue!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+
+            AdjustTimerIntervals();
         }
 
         private void SaveData()
